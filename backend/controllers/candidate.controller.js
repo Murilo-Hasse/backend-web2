@@ -1,77 +1,124 @@
-import {StatusCodes } from 'http-status-codes';
-import * as candidateService from "../services/application.service.js";
+import { StatusCodes } from "http-status-codes";
+import { BaseController } from "./base.controller.js";
+import * as candidateService from "../services/candidate.service.js";
 
+export class CandidateController extends BaseController {
+  // Create candidate
+  static createCandidate = BaseController.asyncHandler(async (req, res) => {
+    const candidateData = req.body;
 
-export const createCandidate = async (req, res) => {
-  const { name, email, password } = req.body;
-
-  // Verificação básica
-  if (!name || !email || !password) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      error: "Os campos name, email e password são obrigatórios.",
-    });
-  }
-
-  try {
-    const candidate = await candidateService.createCandidate({
-      name,
-      email,
-      password,
-    });
-    return res.status(StatusCodes.CREATED).json(candidate);
-  } catch (err) {
-    // Verifica erro de e-mail duplicado ou validação do Sequelize
-    if (err.name === "SequelizeUniqueConstraintError") {
-      return res.status(StatusCodes.CONFLICT).json({ error: "E-mail já está em uso." });
+    try {
+      const candidate = await candidateService.createCandidate(candidateData);
+      return this.success(
+        res,
+        candidate,
+        "Candidate created successfully",
+        StatusCodes.CREATED
+      );
+    } catch (err) {
+      return this.handleValidationError(err, res);
     }
-    if (err.name === "SequelizeValidationError") {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: err.errors[0].message });
+  });
+
+  // Get all candidates with pagination and filtering
+  static getAllCandidates = BaseController.asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, search, skills } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      skills: skills ? skills.split(",") : undefined,
+    };
+
+    const result = await candidateService.getAllCandidates(options);
+
+    return this.success(res, {
+      candidates: result.candidates,
+      pagination: {
+        currentPage: result.currentPage,
+        totalPages: result.totalPages,
+        totalCount: result.totalCount,
+        hasNext: result.hasNext,
+        hasPrev: result.hasPrev,
+      },
+    });
+  });
+
+  // Get candidate by ID
+  static getCandidateById = BaseController.asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const candidate = await candidateService.getCandidateById(id);
+
+    if (!candidate) {
+      return this.error(res, "Candidate not found", StatusCodes.NOT_FOUND);
     }
 
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Erro interno do servidor." });
-  }
-};
+    return this.success(res, candidate);
+  });
 
-export const getAllCandidates = async (req, res) => {
-  try {
-    const candidates = await candidateService.getAllcandidates();
-    res.json(candidates);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
+  // Update candidate
+  static updateCandidate = BaseController.asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const updateData = req.body;
 
-export const getcandidateById = async (req, res) => {
-  try {
-    const candidate = await candidateService.getcandidateById(req.params.id);
-    if (!candidate)
-      return res.status(StatusCodes.NOT_FOUND).json({ error: "candidate not found" });
-    res.json(candidate);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
+    try {
+      const candidate = await candidateService.updateCandidate(id, updateData);
 
-export const updatecandidate = async (req, res) => {
-  try {
-    const candidate = await candidateService.updatecandidate(
-      req.params.id,
-      req.body
+      if (!candidate) {
+        return this.error(res, "Candidate not found", StatusCodes.NOT_FOUND);
+      }
+
+      return this.success(res, candidate, "Candidate updated successfully");
+    } catch (err) {
+      return this.handleValidationError(err, res);
+    }
+  });
+
+  // Delete candidate
+  static deleteCandidate = BaseController.asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const deleted = await candidateService.deleteCandidate(id);
+
+    if (!deleted) {
+      return this.error(res, "Candidate not found", StatusCodes.NOT_FOUND);
+    }
+
+    return this.success(
+      res,
+      null,
+      "Candidate deleted successfully",
+      StatusCodes.NO_CONTENT
     );
-    if (!candidate)
-      return res.status(StatusCodes.NOT_FOUND).json({ error: "candidate not found" });
-    res.json(candidate);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
+  });
 
-export const deletecandidate = async (req, res) => {
-  try {
-    const deleted = await candidateService.deletecandidate(req.params.id);
-    if (!deleted) return res.status(StatusCodes.NOT_FOUND).json({ error: "candidate not found" });
-    res.status(204).send();
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
+  // Candidate profile methods
+  static getProfile = BaseController.asyncHandler(async (req, res) => {
+    const candidate = await candidateService.getCandidateById(req.user.id);
+    res.render("candidate/profile", { candidate });
+  });
+
+  static updateProfile = BaseController.asyncHandler(async (req, res) => {
+    const updateData = req.body;
+
+    try {
+      const candidate = await candidateService.updateCandidate(
+        req.user.id,
+        updateData
+      );
+      return this.success(res, candidate, "Profile updated successfully");
+    } catch (err) {
+      return this.handleValidationError(err, res);
+    }
+  });
+
+  // Get candidate applications
+  static getApplications = BaseController.asyncHandler(async (req, res) => {
+    const applications = await candidateService.getCandidateApplications(
+      req.user.id
+    );
+    return this.success(res, applications);
+  });
+}

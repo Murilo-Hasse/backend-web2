@@ -1,0 +1,11 @@
+<form action="/candidateUpdate/{{candidate.id}}" method="post">
+    Nome: <input type="text" name="nome" value="{{candidate.nome}}" required>
+    <br> <br>
+    Email: <input type="email" name="email" value="{{candidate.email}}" required>
+    <br> <br>
+    Telefone: <input type="text" name="telefone" value="{{candidate.telefone}}">
+    <br> <br>
+    Endereço: <input type="text" name="endereco" value="{{candidate.endereco}}">
+    <br> <br>
+    <input type="submit" value="Atualizar">
+</form>

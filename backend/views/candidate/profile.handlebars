@@ -1,0 +1,29 @@
+<h2>Meu Perfil</h2>
+<a href="/candidate/dashboard"> <button> Voltar ao Dashboard</button> </a>
+<br><br>
+<form action="/candidate/profile/update" method="post">
+    Nome Completo: <input type="text" name="nome" value="{{candidate.nome}}" required>
+    <br> <br>
+    Email: <input type="email" name="email" value="{{candidate.email}}" required>
+    <br> <br>
+    Telefone: <input type="text" name="telefone" value="{{candidate.telefone}}">
+    <br> <br>
+    Endereço: <input type="text" name="endereco" value="{{candidate.endereco}}">
+    <br> <br>
+    Data de Nascimento: <input type="date" name="dataNascimento" value="{{candidate.dataNascimento}}">
+    <br> <br>
+    CPF: <input type="text" name="cpf" value="{{candidate.cpf}}">
+    <br> <br>
+    <input type="submit" value="Atualizar Perfil">
+</form>
+<br>
+<h3>Alterar Senha</h3>
+<form action="/candidate/password/change" method="post">
+    Senha Atual: <input type="password" name="senhaAtual" required>
+    <br> <br>
+    Nova Senha: <input type="password" name="novaSenha" required minlength="6">
+    <br> <br>
+    Confirmar Nova Senha: <input type="password" name="confirmarNovaSenha" required minlength="6">
+    <br> <br>
+    <input type="submit" value="Alterar Senha">
+</form>
