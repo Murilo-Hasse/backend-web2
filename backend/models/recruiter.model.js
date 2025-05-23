@@ -9,6 +9,10 @@ export default class Recruiter extends Model {
           primaryKey: true,
           autoIncrement: true,
         },
+        password: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
         name: {
           type: DataTypes.STRING,
           allowNull: false,
@@ -16,12 +20,24 @@ export default class Recruiter extends Model {
         email: {
           type: DataTypes.STRING,
           allowNull: false,
+          unique: true,
+          validate: { isEmail: true},
         },
       },
       {
         sequelize,
         modelName: "Recruiter",
-        tableName: "recruiters",
+        tableName: "recruiter",
+        hooks: {
+          beforeCreate: async (candidate) => {
+            candidate.password = await bcrypt.hash(candidate.password, 10);
+          },
+          beforeUpdate: async (candidate) => {
+            if (candidate.changed("password")) {
+              candidate.password = await bcrypt.hash(candidate.password, 10);
+            }
+          }
+        }
       }
     );
   }
@@ -31,7 +47,7 @@ export default class Recruiter extends Model {
       through: models.CompanyRecruiter,
       foreignKey: "recruiter_id",
       otherKey: "company_id",
-      as: "representedCompanies",
+      as: "representedCompanie",
     });
   }
 }

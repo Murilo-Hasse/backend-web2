@@ -16,7 +16,7 @@ export default class CompanyRecruiter extends Model {
       {
         sequelize,
         modelName: "CompanyRecruiter",
-        tableName: "company_recruiters", 
+        tableName: "company_recruiter", 
         timestamps: false,
       }
     );
