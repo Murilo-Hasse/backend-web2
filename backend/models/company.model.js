@@ -34,7 +34,7 @@ export default class Company extends Model {
       {
         sequelize,
         modelName: "Company",
-        tableName: "companies",
+        tableName: "companie",
       }
     );
   }
@@ -44,7 +44,7 @@ export default class Company extends Model {
       through: models.CompanyRecruiter,
       foreignKey: "company_id",
       otherKey: "recruiter_id",
-      as: "recruiters",
+      as: "recruiter",
     });
   }
 }

@@ -1,17 +1,14 @@
 import sequelize from '../config/db_sequelize.js';
-// import Candidate from './candidate.js';
+import Candidate from './candidate.js';
 // import ResumeCandidate from './ResumeCandidate.js';
-import Company from './company.js';
-import Recruiter from './recruiter.js';
-import CompanyRecruiter from './companyRecruiter.js'
+import Company from './company.model.js';
+import Recruiter from './recruiter.model.js';
+import CompanyRecruiter from './companyRecruiter.model.js'
 
-
-Company.initModel(sequelize);
-Recruiter.initModel(sequelize);
 
 const models = {
-  //   Candidate,
-  //   ResumeCandidate,
+  Candidate,
+  ResumeCandidate,
   Company,
   Recruiter,
   CompanyRecruiter,
