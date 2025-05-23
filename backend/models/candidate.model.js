@@ -19,7 +19,12 @@ export default class Candidate extends Model {
           allowNull: false,
           validate: { isEmail: true },
         },
-        password: {
+        salt: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          unique: true
+        },
+        passwordHash: {
           type: DataTypes.STRING,
           allowNull: false,
         },
