@@ -1,15 +1,28 @@
 import { Model, DataTypes } from "sequelize";
+import bcrypt from "bcrypt"; // Certifique-se de que bcrypt está importado
 
 export default class Recruiter extends Model {
+  // Se você tiver um método para checar senha, adicione aqui (como em Candidate)
+  async checkPassword(password) {
+    // Assumindo que você tem uma coluna para o hash da senha, como passwordHash
+    return await bcrypt.compare(password, this.passwordHash);
+  }
+
   static initModel(sequelize) {
     Recruiter.init(
       {
-        recruiter_id: {
-          type: DataTypes.INTEGER,
+        id: {
+          type: DataTypes.UUID, // CORREÇÃO 1: Tipo UUID
+          defaultValue: DataTypes.UUIDV4, // CORREÇÃO 1: Geração automática de UUID
           primaryKey: true,
-          autoIncrement: true,
+          // autoIncrement não é necessário para UUID
         },
+        // Se você está usando passwordHash para o hash da senha e um salt,
+        // a coluna 'password' pode ser removida ou renomeada para algo como 'salt'
+        // se o salt for armazenado separadamente. Ou, se 'password' é o hash,
+        // considere renomeá-la para 'passwordHash' para clareza.
         password: {
+          // Assumindo que esta é a coluna para o hash da senha
           type: DataTypes.STRING,
           allowNull: false,
         },
@@ -21,23 +34,26 @@ export default class Recruiter extends Model {
           type: DataTypes.STRING,
           allowNull: false,
           unique: true,
-          validate: { isEmail: true},
+          validate: { isEmail: true },
         },
       },
       {
+        timestamps: true,
         sequelize,
         modelName: "Recruiter",
         tableName: "recruiter",
         hooks: {
-          beforeCreate: async (candidate) => {
-            candidate.password = await bcrypt.hash(candidate.password, 10);
+          beforeCreate: async (recruiter) => {
+            // CORREÇÃO 2: Variável 'recruiter'
+            recruiter.password = await bcrypt.hash(recruiter.password, 10);
           },
-          beforeUpdate: async (candidate) => {
-            if (candidate.changed("password")) {
-              candidate.password = await bcrypt.hash(candidate.password, 10);
+          beforeUpdate: async (recruiter) => {
+            // CORREÇÃO 2: Variável 'recruiter'
+            if (recruiter.changed("password")) {
+              recruiter.password = await bcrypt.hash(recruiter.password, 10);
             }
-          }
-        }
+          },
+        },
       }
     );
   }
@@ -47,7 +63,11 @@ export default class Recruiter extends Model {
       through: models.CompanyRecruiter,
       foreignKey: "recruiter_id",
       otherKey: "company_id",
-      as: "representedCompanie",
+      as: "representedCompany",
+    });
+    Recruiter.hasMany(models.JobVacancy, {
+      foreignKey: "recruiter_id",
+      as: "jobVacancies", // CORREÇÃO 3: Nome 'as' mais descritivo
     });
   }
 }

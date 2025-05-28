@@ -1,7 +1,8 @@
-import { StatusCodes } from 'http-status-code';
-import * as recruiterService from "../services/recruiter.service.js";
+import {StatusCodes } from 'http-status-code';
+import * as candidateService from "../services/candidate.service";
 
-export const createRecruiter = async (req, res) => {
+
+export const createCandidate = async (req, res) => {
   const { name, email, password } = req.body;
 
   // Verificação básica
@@ -12,12 +13,12 @@ export const createRecruiter = async (req, res) => {
   }
 
   try {
-    const recruiter = await recruiterService.createRecruiter({
+    const candidate = await candidateService.createCandidate({
       name,
       email,
       password,
     });
-    return res.status(StatusCodes.CREATED).json(recruiter);
+    return res.status(StatusCodes.CREATED).json(candidate);
   } catch (err) {
     // Verifica erro de e-mail duplicado ou validação do Sequelize
     if (err.name === "SequelizeUniqueConstraintError") {
@@ -31,44 +32,44 @@ export const createRecruiter = async (req, res) => {
   }
 };
 
-export const getAllRecruiters = async (req, res) => {
+export const getAllcandidates = async (req, res) => {
   try {
-    const recruiters = await recruiterService.getAllRecruiters();
-    res.json(recruiters);
+    const candidates = await candidateService.getAllcandidates();
+    res.json(candidates);
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
   }
 };
 
-export const getRecruiterById = async (req, res) => {
+export const getcandidateById = async (req, res) => {
   try {
-    const recruiter = await recruiterService.getRecruiterById(req.params.id);
-    if (!recruiter)
-      return res.status(StatusCodes.NOT_FOUND).json({ error: "Recruiter not found" });
-    res.json(recruiter);
+    const candidate = await candidateService.getcandidateById(req.params.id);
+    if (!candidate)
+      return res.status(StatusCodes.NOT_FOUND).json({ error: "candidate not found" });
+    res.json(candidate);
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
   }
 };
 
-export const updateRecruiter = async (req, res) => {
+export const updatecandidate = async (req, res) => {
   try {
-    const recruiter = await recruiterService.updateRecruiter(
+    const candidate = await candidateService.updatecandidate(
       req.params.id,
       req.body
     );
-    if (!recruiter)
-      return res.status(StatusCodes.NOT_FOUND).json({ error: "Recruiter not found" });
-    res.json(recruiter);
+    if (!candidate)
+      return res.status(StatusCodes.NOT_FOUND).json({ error: "candidate not found" });
+    res.json(candidate);
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
   }
 };
 
-export const deleteRecruiter = async (req, res) => {
+export const deletecandidate = async (req, res) => {
   try {
-    const deleted = await recruiterService.deleteRecruiter(req.params.id);
-    if (!deleted) return res.status(StatusCodes.NOT_FOUND).json({ error: "Recruiter not found" });
+    const deleted = await candidateService.deletecandidate(req.params.id);
+    if (!deleted) return res.status(StatusCodes.NOT_FOUND).json({ error: "candidate not found" });
     res.status(204).send();
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
