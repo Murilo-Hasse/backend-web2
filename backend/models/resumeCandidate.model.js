@@ -1,6 +1,4 @@
 import { Model, DataTypes } from "sequelize";
-const sequelize = require("../config/db_sequelize");
-const { FOREIGNKEYS } = require("sequelize/lib/query-types");
 
 export default class ResumeCandidate extends Model{
   static initModel(sequelize){
@@ -27,17 +25,17 @@ export default class ResumeCandidate extends Model{
       },
       seniority_level:{
         type: DataTypes.ENUM('INTERN', 'JUNIOR', 'MID', 'SENIOR', 'LEAD'),
-        allowNull: false2
+        allowNull: false
       },
       archive_path: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       }
     },
     {
       sequelize,
       modelName: 'ResumeCandidate',
-      tableName: 'resume_candidates',
+      tableName: 'resumeCandidate',
       timestamps: true
     });
   }

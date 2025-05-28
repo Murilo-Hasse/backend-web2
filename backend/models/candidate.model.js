@@ -48,7 +48,7 @@ export default class Candidate extends Model {
       {
         sequelize,
         modelName: "Candidate",
-        tableName: "candidates",
+        tableName: "candidate",
         timestamps: true,
         hooks: {
           beforeCreate: async (candidate) => {
@@ -65,10 +65,13 @@ export default class Candidate extends Model {
   }
 
   static associate(models) {
-    // Exemplo de associação, ajuste conforme necessário:
     this.hasMany(models.ResumeCandidate, {
       foreignKey: "candidate_id",
-      as: "resumes",
+      as: "resume",
+    });
+    Candidate.hasMany(models.Applications, {
+      foreignKey: "candidate_id",
+      as: "application",
     });
   }
 }

@@ -34,7 +34,7 @@ export default class Company extends Model {
       {
         sequelize,
         modelName: "Company",
-        tableName: "companie",
+        tableName: "company",
       }
     );
   }
