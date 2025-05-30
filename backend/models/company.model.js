@@ -1,13 +1,13 @@
-import { Model, DataTypes } from "sequelize";
+import { Model, DataTypes, UUIDV4 } from "sequelize";
 
 export default class Company extends Model {
   static initModel(sequelize) {
     Company.init(
       { 
         company_id: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.UUID,
+          defaultValue: DataTypes.UUIDV4,
           primaryKey: true,
-          autoIncrement: true,
         },
         cnpj: {
           type: DataTypes.STRING,

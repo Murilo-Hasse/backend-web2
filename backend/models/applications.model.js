@@ -19,7 +19,7 @@ export default class Applications extends Model {
           onDelete: "CASCADE",
           onUpdate: "CASCADE",
         },
-        jobVacancy_id: {
+        job_vacancy_id: {
           type: DataTypes.UUID,
           allowNull: false,
           references: {
@@ -50,7 +50,7 @@ export default class Applications extends Model {
       as: "candidate",
     });
     Applications.belongsTo(models.JobVacancy, {
-      foreignKey: "job_vacancy_id",
+      foreignKey: "jobVacancy_id",
       as: "jobVacancy",
     });
   }

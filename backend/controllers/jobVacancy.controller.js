@@ -1,75 +1,93 @@
-import {StatusCodes } from 'http-status-code';
-import * as jobVacancyService from "../services/jobVacancy.service";
+import { StatusCodes } from "http-status-codes";
+import * as jobVacancyService from "../services/jobVacancy.service.js";
 
+export const createJobVacancy = async (req, res) => {
+  const { title, description, seniorityLevel, recruiter_id } = req.body;
 
-export const createjobVacancy = async (req, res) => {
-  const { name, email, password } = req.body;
-
-  // Verificação básica
-  if (!name || !id || !password) {
+  if (!title || !description || !seniorityLevel || !recruiter_id) {
     return res.status(StatusCodes.BAD_REQUEST).json({
-      error: "Os campos name, email e password são obrigatórios.",
+      error:
+        "Os campos title, description, seniorityLevel e recruiter_id são obrigatórios.",
     });
   }
 
   try {
-    const jobVacancy = await jobVacancyService.createjobVacancy({
-      name,
-      email,
-      password,
+    const jobVacancy = await jobVacancyService.createJobVacancy({
+      title,
+      description,
+      seniorityLevel,
+      recruiter_id,
     });
     return res.status(StatusCodes.CREATED).json(jobVacancy);
   } catch (err) {
-    if (err.name === "SequelizeUniqueConstraintError") {
-      return res.status(StatusCodes.CONFLICT).json({ error: ""});
-    }
     if (err.name === "SequelizeValidationError") {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: err.errors[0].message });
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ error: err.errors[0].message });
     }
-
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Erro interno do servidor." });
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: "Erro interno do servidor." });
   }
 };
 
-export const getAlljobVacancys = async (req, res) => {
+export const getAllJobVacancies = async (req, res) => {
   try {
-    const jobVacancys = await jobVacancyService.getAlljobVacancys();
-    res.json(jobVacancys);
+    const jobVacancies = await jobVacancyService.getAllJobVacancies();
+    res.json(jobVacancies);
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
   }
 };
 
-export const getjobVacancyById = async (req, res) => {
+export const getJobVacancyById = async (req, res) => {
   try {
-    const jobVacancy = await jobVacancyService.getjobVacancyById(req.params.id);
+    const jobVacancy = await jobVacancyService.getJobVacancyById(req.params.id);
     if (!jobVacancy)
-      return res.status(StatusCodes.NOT_FOUND).json({ error: "jobVacancy not found" });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: "Job vacancy not found" });
     res.json(jobVacancy);
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
   }
 };
 
-export const updatejobVacancy = async (req, res) => {
+export const updateJobVacancy = async (req, res) => {
   try {
-    const jobVacancy = await jobVacancyService.updatejobVacancy(
+    const jobVacancy = await jobVacancyService.updateJobVacancy(
       req.params.id,
       req.body
     );
     if (!jobVacancy)
-      return res.status(StatusCodes.NOT_FOUND).json({ error: "jobVacancy not found" });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: "Job vacancy not found" });
     res.json(jobVacancy);
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
   }
 };
 
-export const deletejobVacancy = async (req, res) => {
+export const deleteJobVacancy = async (req, res) => {
   try {
-    const deleted = await jobVacancyService.deletejobVacancy(req.params.id);
-    if (!deleted) return res.status(StatusCodes.NOT_FOUND).json({ error: "jobVacancy not found" });
+    const deleted = await jobVacancyService.deleteJobVacancy(req.params.id);
+    if (!deleted)
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: "Job vacancy not found" });
     res.status(204).send();
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
+  }
+};
+
+export const getJobVacanciesByRecruiter = async (req, res) => {
+  try {
+    const jobVacancies = await jobVacancyService.getJobVacanciesByRecruiter(
+      req.params.recruiterId
+    );
+    res.json(jobVacancies);
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
   }

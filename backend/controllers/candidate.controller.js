@@ -1,5 +1,5 @@
-import {StatusCodes } from 'http-status-code';
-import * as candidateService from "../services/candidate.service";
+import {StatusCodes } from 'http-status-codes';
+import * as candidateService from "../services/application.service.js";
 
 
 export const createCandidate = async (req, res) => {
@@ -32,7 +32,7 @@ export const createCandidate = async (req, res) => {
   }
 };
 
-export const getAllcandidates = async (req, res) => {
+export const getAllCandidates = async (req, res) => {
   try {
     const candidates = await candidateService.getAllcandidates();
     res.json(candidates);

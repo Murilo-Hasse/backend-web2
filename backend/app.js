@@ -1,12 +1,14 @@
 import express from "express";
-import companyRoutes from "./routes/company.routes.js";
-import recruiterRoutes from "./routes/recruiter.routes.js";
+import { errorHandler, notFound } from "./middleware/errorHandler.js";
+import * as routes from "./routes/routes.js"
 
 const app = express();
 
 app.use(express.json());
+app.use('/api', routes);
 
-app.use("/companies", companyRoutes);
-app.use("/recruiters", recruiterRoutes);
+// Add these after your routes
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;
