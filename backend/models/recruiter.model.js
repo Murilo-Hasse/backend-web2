@@ -15,12 +15,7 @@ export default class Recruiter extends Model {
           type: DataTypes.UUID, // CORREÇÃO 1: Tipo UUID
           defaultValue: DataTypes.UUIDV4, // CORREÇÃO 1: Geração automática de UUID
           primaryKey: true,
-          // autoIncrement não é necessário para UUID
         },
-        // Se você está usando passwordHash para o hash da senha e um salt,
-        // a coluna 'password' pode ser removida ou renomeada para algo como 'salt'
-        // se o salt for armazenado separadamente. Ou, se 'password' é o hash,
-        // considere renomeá-la para 'passwordHash' para clareza.
         password: {
           // Assumindo que esta é a coluna para o hash da senha
           type: DataTypes.STRING,
@@ -67,7 +62,7 @@ export default class Recruiter extends Model {
     });
     Recruiter.hasMany(models.JobVacancy, {
       foreignKey: "recruiter_id",
-      as: "jobVacancies", // CORREÇÃO 3: Nome 'as' mais descritivo
+      as: "jobVacancies", 
     });
   }
 }

@@ -21,4 +21,4 @@ export default class CompanyRecruiter extends Model {
       }
     );
   }
-}3
+}

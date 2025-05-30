@@ -9,6 +9,10 @@ import {
   CompanyRecruiter,
 } from "./models/index.js"; // Import all models from your index.js
 
+import app from "./app.js";
+
+const PORT = 3000;
+
 async function startServer() {
   try {
     // Test database connection
@@ -28,7 +32,9 @@ async function startServer() {
     await Applications.sync({ alter: true }); // Depends on Candidate, JobVacancy
 
     console.log("All models were synchronized successfully.");
-
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
     // Start your Express app or other server logic here
     // ...
   } catch (error) {
@@ -36,6 +42,7 @@ async function startServer() {
       "Unable to connect to the database or synchronize models:",
       error
     );
+    process.exit(1);
   }
 }
 

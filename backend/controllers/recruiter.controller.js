@@ -1,4 +1,4 @@
-import { StatusCodes } from 'http-status-code';
+import { StatusCodes } from 'http-status-codes';
 import * as recruiterService from "../services/recruiter.service.js";
 
 export const createRecruiter = async (req, res) => {

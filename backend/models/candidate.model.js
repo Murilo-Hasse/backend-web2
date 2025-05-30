@@ -13,18 +13,14 @@ export default class Candidate extends Model {
           defaultValue: DataTypes.UUIDV4,
           primaryKey: true,
         },
-        email: { //email is a login
+        email: {
+          //email is a login
           type: DataTypes.STRING,
           unique: true,
           allowNull: false,
           validate: { isEmail: true },
         },
-        salt: {
-          type: DataTypes.STRING,
-          allowNull: false,
-          unique: true
-        },
-        passwordHash: {
+        password: {
           type: DataTypes.STRING,
           allowNull: false,
         },
@@ -44,7 +40,7 @@ export default class Candidate extends Model {
           type: DataTypes.DATE,
           allowNull: false,
         },
-      },  
+      },
       {
         sequelize,
         modelName: "Candidate",
