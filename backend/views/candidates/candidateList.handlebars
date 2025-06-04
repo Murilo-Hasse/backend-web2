@@ -1,0 +1,20 @@
+<table border="1px">
+    <tr>
+        <td> Nome </td>
+        <td> Email </td>
+        <td> Telefone </td>
+        <td> Endereço </td>
+        <td> Editar </td>
+        <td> Deletar </td>
+    </tr>
+    {{#each candidates}}
+    <tr>
+        <td>{{nome}}</td>
+        <td>{{email}}</td>
+        <td>{{telefone}}</td>
+        <td>{{endereco}}</td>
+        <td><a href="candidateUpdate/{{id}}">Editar</a></td>
+        <td><a href="candidateDelete/{{id}}">Deletar</a></td>
+    </tr>
+    {{/each}}
+</table>

@@ -1,110 +1,68 @@
 import { StatusCodes } from "http-status-codes";
-import * as applicationsService from "../services/application.service.js";
+import * as applicationService from "../services/application.service.js";
+import { BaseController } from "./base.controller.js";
 
-export const createApplication = async (req, res) => {
-  const { candidate_id, jobVacancy_id } = req.body;
+export class ApplicationController extends BaseController {
+  // Submit job application
+  static submitApplication = BaseController.asyncHandler(async (req, res) => {
+    const { jobId } = req.params;
+    const applicationData = {
+      ...req.body,
+      candidateId: req.user.id,
+      jobId,
+    };
 
-  if (!candidate_id || !jobVacancy_id) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      error: "Os campos candidate_id e jobVacancy_id são obrigatórios.",
-    });
-  }
-
-  try {
-    const application = await applicationsService.createApplication({
-      candidate_id,
-      jobVacancy_id,
-      status: "EM_ANALISE", // Default status
-    });
-    return res.status(StatusCodes.CREATED).json(application);
-  } catch (err) {
-    if (err.name === "SequelizeUniqueConstraintError") {
-      return res
-        .status(StatusCodes.CONFLICT)
-        .json({ error: "Candidato já aplicou para esta vaga." });
+    try {
+      const application = await applicationService.createApplication(
+        applicationData
+      );
+      return this.success(
+        res,
+        application,
+        "Application submitted successfully",
+        StatusCodes.CREATED
+      );
+    } catch (err) {
+      return this.handleValidationError(err, res);
     }
-    if (err.name === "SequelizeValidationError") {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ error: err.errors[0].message });
+  });
+
+  // Get applications for a job (recruiter view)
+  static getJobApplications = BaseController.asyncHandler(async (req, res) => {
+    const { jobId } = req.params;
+    const { status, page = 1, limit = 10 } = req.query;
+
+    const options = {
+      jobId,
+      status,
+      page: parseInt(page),
+      limit: parseInt(limit),
+    };
+
+    const applications = await applicationService.getJobApplications(options);
+    return this.success(res, applications);
+  });
+
+  // Update application status
+  static updateApplicationStatus = BaseController.asyncHandler(async (req, res) => {
+    const { applicationId } = req.params;
+    const { status, notes } = req.body;
+
+    const application = await applicationService.updateApplicationStatus(
+      applicationId,
+      status,
+      notes,
+      req.user.id
+    );
+
+    if (!application) {
+      return this.error(res, "Application not found", StatusCodes.NOT_FOUND);
     }
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ error: "Erro interno do servidor." });
-  }
-};
 
-export const getAllApplications = async (req, res) => {
-  try {
-    const applications = await applicationsService.getAllApplications();
-    res.json(applications);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
-
-export const getApplicationById = async (req, res) => {
-  try {
-    const application = await applicationsService.getApplicationById(
-      req.params.id
+    return this.success(
+      res,
+      application,
+      "Application status updated successfully"
     );
-    if (!application)
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ error: "Application not found" });
-    res.json(application);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
-
-export const updateApplication = async (req, res) => {
-  try {
-    const application = await applicationsService.updateApplication(
-      req.params.id,
-      req.body
-    );
-    if (!application)
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ error: "Application not found" });
-    res.json(application);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
-
-export const deleteApplication = async (req, res) => {
-  try {
-    const deleted = await applicationsService.deleteApplication(req.params.id);
-    if (!deleted)
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ error: "Application not found" });
-    res.status(204).send();
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
-
-export const getApplicationsByCandidate = async (req, res) => {
-  try {
-    const applications = await applicationsService.getApplicationsByCandidate(
-      req.params.candidateId
-    );
-    res.json(applications);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
-
-export const getApplicationsByJobVacancy = async (req, res) => {
-  try {
-    const applications = await applicationsService.getApplicationsByJobVacancy(
-      req.params.jobVacancyId
-    );
-    res.json(applications);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
+  });
+}

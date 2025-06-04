@@ -1,82 +1,73 @@
-import { Applications, Candidate, JobVacancy } from "../models/index.js";
+import { Applications, Candidate } from '../models/index.js';
 
-export const createApplication = async (data) => {
-  const application = await Applications.create(data);
-  return application;
+export const createApplication = async (applicationData) => {
+  const { candidateId, jobId, coverLetter, expectedSalary } = applicationData;
+  
+  // Check if Applications already exists
+  const existingApplication = await Applications.findOne({
+    where: { candidateId, jobId }
+  });
+  
+  if (existingApplication) {
+    throw new Error('You have already applied for this job');
+  }
+
+  const Applications = await Applications.create({
+    candidateId,
+    jobId,
+    coverLetter,
+    expectedSalary,
+    status: 'pending',
+    appliedAt: new Date()
+  });
+
+  return Applications;
 };
 
-export const getAllApplications = async () => {
-  return await Applications.findAll({
+export const getJobApplications = async (options) => {
+  const { jobId, status, page = 1, limit = 10 } = options;
+  const offset = (page - 1) * limit;
+  
+  let whereClause = { jobId };
+  
+  if (status) {
+    whereClause.status = status;
+  }
+
+  const { rows: applications, count } = await Applications.findAndCountAll({
+    where: whereClause,
+    limit,
+    offset,
     include: [
       {
         model: Candidate,
-        as: "candidate",
-        attributes: ["id", "name", "email"],
-      },
-      {
-        model: JobVacancy,
-        as: "jobVacancy",
-        attributes: ["id", "title", "seniorityLevel"],
-      },
+        attributes: ['id', 'name', 'email', 'phone', 'skills', 'experience']
+      }
     ],
+    order: [['appliedAt', 'DESC']]
   });
+
+  return {
+    applications,
+    totalCount: count,
+    currentPage: page,
+    totalPages: Math.ceil(count / limit)
+  };
 };
 
-export const getApplicationById = async (id) => {
-  return await Applications.findByPk(id, {
-    include: [
-      {
-        model: Candidate,
-        as: "candidate",
-        attributes: ["id", "name", "email"],
-      },
-      {
-        model: JobVacancy,
-        as: "jobVacancy",
-        attributes: ["id", "title", "seniorityLevel"],
-      },
-    ],
+export const updateApplicationStatus = async (applicationId, status, notes, recruiterId) => {
+  const Applications = await Applications.findByPk(applicationId);
+  
+  if (!Applications) {
+    return null;
+  }
+
+  await Applications.update({
+    status,
+    notes,
+    reviewedBy: recruiterId,
+    reviewedAt: new Date()
   });
-};
 
-export const updateApplication = async (id, data) => {
-  const application = await Applications.findByPk(id);
-  if (!application) return null;
-
-  await application.update(data);
-  return application;
-};
-
-export const deleteApplication = async (id) => {
-  const application = await Applications.findByPk(id);
-  if (!application) return null;
-
-  await application.destroy();
-  return true;
-};
-
-export const getApplicationsByCandidate = async (candidateId) => {
-  return await Applications.findAll({
-    where: { candidate_id: candidateId },
-    include: [
-      {
-        model: JobVacancy,
-        as: "jobVacancy",
-        attributes: ["id", "title", "seniorityLevel"],
-      },
-    ],
-  });
-};
-
-export const getApplicationsByJobVacancy = async (jobVacancyId) => {
-  return await Applications.findAll({
-    where: { jobVacancy_id: jobVacancyId },
-    include: [
-      {
-        model: Candidate,
-        as: "candidate",
-        attributes: ["id", "name", "email"],
-      },
-    ],
-  });
+  return Applications;
 };

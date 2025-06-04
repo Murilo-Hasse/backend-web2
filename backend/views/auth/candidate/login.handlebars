@@ -1,0 +1,16 @@
+<h2>Login - Candidato</h2>
+{{#if error}}
+<div style="color: red; margin: 10px;">
+    {{error}}
+</div>
+{{/if}}
+<form action="/candidate/login" method="post">
+    Email: <input type="email" name="email" required>
+    <br> <br>
+    Senha: <input type="password" name="senha" required>
+    <br> <br>
+    <input type="submit" value="Entrar">
+</form>
+<br>
+<p>Não tem conta? <a href="/candidate/register">Cadastre-se aqui</a></p>
+<p><a href="/">Voltar ao início</a></p>

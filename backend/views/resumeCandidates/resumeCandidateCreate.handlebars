@@ -1,0 +1,19 @@
+<form action="/resumeCandidateCreate" method="post">
+    Candidato:
+    <select name="candidateId" required>
+        <option value="">Selecione um candidato</option>
+        {{#each candidates}}
+        <option value="{{id}}">{{nome}}</option>
+        {{/each}}
+    </select>
+    <br> <br>
+    Experiência Profissional: <textarea name="experiencia" rows="4" cols="50"></textarea>
+    <br> <br>
+    Educação: <textarea name="educacao" rows="4" cols="50"></textarea>
+    <br> <br>
+    Habilidades: <textarea name="habilidades" rows="4" cols="50"></textarea>
+    <br> <br>
+    Certificações: <textarea name="certificacoes" rows="4" cols="50"></textarea>
+    <br> <br>
+    <input type="submit" value="Cadastrar">
+</form>
