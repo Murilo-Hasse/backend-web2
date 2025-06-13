@@ -1,0 +1,288 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Job Platform API",
+    "version": "1.0.0",
+    "description": "API para autentica\u00e7\u00e3o, candidatos e recrutadores"
+  },
+  "paths": {
+    "/auth": {
+      "get": {
+        "summary": "Verifica se a API de autentica\u00e7\u00e3o est\u00e1 funcionando",
+        "responses": {
+          "200": {
+            "description": "API funcionando"
+          }
+        }
+      }
+    },
+    "/auth/candidate/login": {
+      "post": {
+        "summary": "Login de candidato",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login bem-sucedido"
+          },
+          "401": {
+            "description": "Credenciais inv\u00e1lidas"
+          }
+        }
+      }
+    },
+    "/auth/candidate/register": {
+      "post": {
+        "summary": "Registro de candidato",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Candidato registrado com sucesso"
+          },
+          "400": {
+            "description": "Dados inv\u00e1lidos"
+          }
+        }
+      }
+    },
+    "/auth/recruiter/login": {
+      "post": {
+        "summary": "Login de recrutador",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login bem-sucedido"
+          },
+          "401": {
+            "description": "Credenciais inv\u00e1lidas"
+          }
+        }
+      }
+    },
+    "/auth/recruiter/register": {
+      "post": {
+        "summary": "Registro de recrutador",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Recrutador registrado com sucesso"
+          },
+          "400": {
+            "description": "Dados inv\u00e1lidos"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Logout de usu\u00e1rio",
+        "responses": {
+          "200": {
+            "description": "Logout bem-sucedido"
+          },
+          "500": {
+            "description": "Erro ao encerrar sess\u00e3o"
+          }
+        }
+      }
+    },
+    "/candidates": {
+      "get": {
+        "summary": "Buscar candidatos com filtros e pagina\u00e7\u00e3o",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "skills",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de candidatos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar candidato",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Candidato criado"
+          },
+          "400": {
+            "description": "Erro de valida\u00e7\u00e3o"
+          }
+        }
+      }
+    },
+    "/candidates/{id}": {
+      "get": {
+        "summary": "Buscar candidato por ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Candidato encontrado"
+          },
+          "404": {
+            "description": "Candidato n\u00e3o encontrado"
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualizar candidato",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Candidato atualizado"
+          },
+          "400": {
+            "description": "Erro de valida\u00e7\u00e3o"
+          },
+          "404": {
+            "description": "Candidato n\u00e3o encontrado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Excluir candidato",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Candidato exclu\u00eddo"
+          },
+          "404": {
+            "description": "Candidato n\u00e3o encontrado"
+          }
+        }
+      }
+    }
+  }
+}
