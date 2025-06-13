@@ -3,17 +3,12 @@ import * as authService from "../services/auth.service.js";
 import { StatusCodes } from "http-status-codes"; 
 
 export class AuthController extends BaseController {
-  // Render main authentication page
+  // Apenas para testes / status
   static mainAuth = (req, res) => {
-    res.render("auth/main");
+    return res.status(200).json({ message: "Auth API is working." });
   };
 
-  // Candidate authentication
-  static candidateLoginForm = (req, res) => {
-    res.render("auth/candidate/login");
-  };
-
-
+  // Login candidato
   static candidateLogin = BaseController.asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
@@ -23,7 +18,6 @@ export class AuthController extends BaseController {
       return this.error(res, result.message, StatusCodes.UNAUTHORIZED);
     }
 
-    // Set session or JWT token
     req.session.user = result.user;
     req.session.userType = "candidate";
 
@@ -37,10 +31,7 @@ export class AuthController extends BaseController {
     );
   });
 
-  static candidateRegisterForm = (req, res) => {
-    res.render("auth/candidate/register");
-  };
-
+  // Registro candidato
   static candidateRegister = BaseController.asyncHandler(async (req, res) => {
     const userData = req.body;
 
@@ -58,11 +49,7 @@ export class AuthController extends BaseController {
     );
   });
 
-  // Recruiter authentication
-  static recruiterLoginForm = (req, res) => {
-    res.render("auth/recruiter/login");
-  };
-
+  // Login recrutador
   static recruiterLogin = BaseController.asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
@@ -85,16 +72,11 @@ export class AuthController extends BaseController {
     );
   });
 
-  // ADICIONADO: Recruiter Register Form
-  static recruiterRegisterForm = (req, res) => {
-    res.render("auth/recruiter/register"); // Renderiza o formulário de registro para recrutadores
-  };
-
-  // ADICIONADO: Recruiter Register
+  // Registro recrutador
   static recruiterRegister = BaseController.asyncHandler(async (req, res) => {
     const userData = req.body;
 
-    const result = await authService.registerRecruiter(userData); // Chama o serviço para registrar o recrutador
+    const result = await authService.registerRecruiter(userData);
 
     if (!result.success) {
       return this.error(res, result.message, StatusCodes.BAD_REQUEST);
@@ -108,28 +90,35 @@ export class AuthController extends BaseController {
     );
   });
 
-  // Dashboard methods
+  // Dashboard candidato
   static candidateDashboard = BaseController.asyncHandler(async (req, res) => {
     const candidateData = await authService.getCandidateDashboardData(
       req.user.id
     );
-    res.render("candidate/dashboard", { candidate: candidateData });
+
+    return this.success(res, candidateData, "Candidate dashboard");
   });
 
+  // Dashboard recrutador
   static recruiterDashboard = BaseController.asyncHandler(async (req, res) => {
     const recruiterData = await authService.getRecruiterDashboardData(
       req.user.id
     );
-    res.render("recruiter/dashboard", { recruiter: recruiterData });
+
+    return this.success(res, recruiterData, "Recruiter dashboard");
   });
 
   // Logout
   static logout = (req, res) => {
     req.session.destroy((err) => {
       if (err) {
-        return this.error(res, "Logout failed");
+        return this.error(
+          res,
+          "Logout failed",
+          StatusCodes.INTERNAL_SERVER_ERROR
+        );
       }
-      res.redirect("/");
+      return res.status(StatusCodes.OK).json({ message: "Logout successful" });
     });
   };
 }

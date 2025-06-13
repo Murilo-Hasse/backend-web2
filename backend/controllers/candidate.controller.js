@@ -3,7 +3,7 @@ import { BaseController } from "./base.controller.js";
 import * as candidateService from "../services/candidate.service.js";
 
 export class CandidateController extends BaseController {
-  // Create candidate
+  // Criar candidato
   static createCandidate = BaseController.asyncHandler(async (req, res) => {
     const candidateData = req.body;
 
@@ -20,7 +20,7 @@ export class CandidateController extends BaseController {
     }
   });
 
-  // Get all candidates with pagination and filtering
+  // Buscar todos os candidatos (com paginação e filtros)
   static getAllCandidates = BaseController.asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, search, skills } = req.query;
 
@@ -45,7 +45,7 @@ export class CandidateController extends BaseController {
     });
   });
 
-  // Get candidate by ID
+  // Buscar candidato por ID
   static getCandidateById = BaseController.asyncHandler(async (req, res) => {
     const { id } = req.params;
 
@@ -58,7 +58,7 @@ export class CandidateController extends BaseController {
     return this.success(res, candidate);
   });
 
-  // Update candidate
+  // Atualizar candidato
   static updateCandidate = BaseController.asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
@@ -76,7 +76,7 @@ export class CandidateController extends BaseController {
     }
   });
 
-  // Delete candidate
+  // Excluir candidato
   static deleteCandidate = BaseController.asyncHandler(async (req, res) => {
     const { id } = req.params;
 
@@ -94,12 +94,18 @@ export class CandidateController extends BaseController {
     );
   });
 
-  // Candidate profile methods
+  // Perfil do candidato logado
   static getProfile = BaseController.asyncHandler(async (req, res) => {
     const candidate = await candidateService.getCandidateById(req.user.id);
-    res.render("candidate/profile", { candidate });
+
+    if (!candidate) {
+      return this.error(res, "Candidate not found", StatusCodes.NOT_FOUND);
+    }
+
+    return this.success(res, candidate, "Profile data loaded");
   });
 
+  // Atualizar perfil do candidato logado
   static updateProfile = BaseController.asyncHandler(async (req, res) => {
     const updateData = req.body;
 
@@ -108,17 +114,23 @@ export class CandidateController extends BaseController {
         req.user.id,
         updateData
       );
+
+      if (!candidate) {
+        return this.error(res, "Candidate not found", StatusCodes.NOT_FOUND);
+      }
+
       return this.success(res, candidate, "Profile updated successfully");
     } catch (err) {
       return this.handleValidationError(err, res);
     }
   });
 
-  // Get candidate applications
+  // Buscar candidaturas do candidato logado
   static getApplications = BaseController.asyncHandler(async (req, res) => {
     const applications = await candidateService.getCandidateApplications(
       req.user.id
     );
-    return this.success(res, applications);
+
+    return this.success(res, applications, "Applications loaded");
   });
 }
