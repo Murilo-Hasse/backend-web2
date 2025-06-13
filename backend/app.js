@@ -5,11 +5,15 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { engine } from "express-handlebars";
 import routes from "./routes/index.js";
+import swaggerUiExpress from "swagger-ui-express";
+import swaggerDocument from "./swagger.json" assert { type: "json" };
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Configuração do Handlebars
 app.engine(

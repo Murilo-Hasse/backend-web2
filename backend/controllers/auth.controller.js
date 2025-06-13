@@ -13,6 +13,7 @@ export class AuthController extends BaseController {
     res.render("auth/candidate/login");
   };
 
+
   static candidateLogin = BaseController.asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
