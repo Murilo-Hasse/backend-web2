@@ -1,76 +1,84 @@
-import { StatusCodes } from 'http-status-codes';
+import { StatusCodes } from "http-status-codes";
+import { BaseController } from "./base.controller.js";
 import * as recruiterService from "../services/recruiter.service.js";
 
-export const createRecruiter = async (req, res) => {
-  const { name, email, password } = req.body;
+export class RecruiterController extends BaseController {
+  static createRecruiter = BaseController.asyncHandler(async (req, res) => {
+    const recruiterData = req.body;
 
-  // Verificação básica
-  if (!name || !email || !password) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      error: "Os campos name, email e password são obrigatórios.",
-    });
-  }
-
-  try {
-    const recruiter = await recruiterService.createRecruiter({
-      name,
-      email,
-      password,
-    });
-    return res.status(StatusCodes.CREATED).json(recruiter);
-  } catch (err) {
-    // Verifica erro de e-mail duplicado ou validação do Sequelize
-    if (err.name === "SequelizeUniqueConstraintError") {
-      return res.status(StatusCodes.CONFLICT).json({ error: "E-mail já está em uso." });
+    try {
+      const recruiter = await recruiterService.createRecruiter(recruiterData);
+      return this.success(
+        res,
+        recruiter,
+        "Recruiter created successfully",
+        StatusCodes.CREATED
+      );
+    } catch (err) {
+      return this.handleValidationError(err, res);
     }
-    if (err.name === "SequelizeValidationError") {
-      return res.status(StatusCodes.BAD_REQUEST).json({ error: err.errors[0].message });
+  });
+
+  static getAllRecruiters = BaseController.asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, company } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      company,
+    };
+
+    const result = await recruiterService.getAllRecruiters(options);
+    return this.success(res, result);
+  });
+
+  static getRecruiterById = BaseController.asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const recruiter = await recruiterService.getRecruiterById(id);
+
+    if (!recruiter) {
+      return this.error(res, "Recruiter not found", StatusCodes.NOT_FOUND);
     }
 
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Erro interno do servidor." });
-  }
-};
+    return this.success(res, recruiter);
+  });
 
-export const getAllRecruiters = async (req, res) => {
-  try {
-    const recruiters = await recruiterService.getAllRecruiters();
-    res.json(recruiters);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
+  static updateRecruiter = BaseController.asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const updateData = req.body;
 
-export const getRecruiterById = async (req, res) => {
-  try {
-    const recruiter = await recruiterService.getRecruiterById(req.params.id);
-    if (!recruiter)
-      return res.status(StatusCodes.NOT_FOUND).json({ error: "Recruiter not found" });
-    res.json(recruiter);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
+    try {
+      const recruiter = await recruiterService.updateRecruiter(id, updateData);
 
-export const updateRecruiter = async (req, res) => {
-  try {
-    const recruiter = await recruiterService.updateRecruiter(
-      req.params.id,
-      req.body
+      if (!recruiter) {
+        return this.error(res, "Recruiter not found", StatusCodes.NOT_FOUND);
+      }
+
+      return this.success(res, recruiter, "Recruiter updated successfully");
+    } catch (err) {
+      return this.handleValidationError(err, res);
+    }
+  });
+
+  static deleteRecruiter = BaseController.asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const deleted = await recruiterService.deleteRecruiter(id);
+
+    if (!deleted) {
+      return this.error(res, "Recruiter not found", StatusCodes.NOT_FOUND);
+    }
+
+    return this.success(
+      res,
+      null,
+      "Recruiter deleted successfully",
+      StatusCodes.NO_CONTENT
     );
-    if (!recruiter)
-      return res.status(StatusCodes.NOT_FOUND).json({ error: "Recruiter not found" });
-    res.json(recruiter);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
+  });
 
-export const deleteRecruiter = async (req, res) => {
-  try {
-    const deleted = await recruiterService.deleteRecruiter(req.params.id);
-    if (!deleted) return res.status(StatusCodes.NOT_FOUND).json({ error: "Recruiter not found" });
-    res.status(204).send();
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
-};
+  // Get recruiter's job postings
+  static getJobPostings = BaseController.asyncHandler(async (req, res) => {
+    const jobs = await recruiterService.getRecruiterJobs(req.user.id);
+    return this.success(res, jobs);
+  });
+}

@@ -1,0 +1,17 @@
+<form action="/recruiterCreate" method="post">
+    Nome: <input type="text" name="nome" required>
+    <br> <br>
+    Email: <input type="email" name="email" required>
+    <br> <br>
+    Telefone: <input type="text" name="telefone">
+    <br> <br>
+    Empresa:
+    <select name="companyId" required>
+        <option value="">Selecione uma empresa</option>
+        {{#each companies}}
+        <option value="{{id}}">{{nome}}</option>
+        {{/each}}
+    </select>
+    <br> <br>
+    <input type="submit" value="Cadastrar">
+</form>
