@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { BaseController } from "./base.controller.js";
-import * as recruiterService from "../services/recruiter.service"
+import * as recruiterService from "../services/recruiter.service.js"
 
 export class RecruiterController extends BaseController {
   // Criar recrutador

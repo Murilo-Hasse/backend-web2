@@ -1,6 +1,6 @@
 import { BaseController } from "./base.controller.js";
 import * as authService from "../services/auth.service.js";
-import { StatusCodes } from "http-status-codes"; 
+import { StatusCodes } from "http-status-codes";
 
 export class AuthController extends BaseController {
   // Apenas para testes / status
@@ -11,16 +11,12 @@ export class AuthController extends BaseController {
   // Login candidato
   static candidateLogin = BaseController.asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-
     const result = await authService.loginCandidate(email, password);
-
     if (!result.success) {
       return this.error(res, result.message, StatusCodes.UNAUTHORIZED);
     }
-
     req.session.user = result.user;
     req.session.userType = "candidate";
-
     return this.success(
       res,
       {
@@ -34,13 +30,10 @@ export class AuthController extends BaseController {
   // Registro candidato
   static candidateRegister = BaseController.asyncHandler(async (req, res) => {
     const userData = req.body;
-
     const result = await authService.registerCandidate(userData);
-
     if (!result.success) {
       return this.error(res, result.message, StatusCodes.BAD_REQUEST);
     }
-
     return this.success(
       res,
       result.user,
@@ -52,16 +45,12 @@ export class AuthController extends BaseController {
   // Login recrutador
   static recruiterLogin = BaseController.asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-
     const result = await authService.loginRecruiter(email, password);
-
     if (!result.success) {
       return this.error(res, result.message, StatusCodes.UNAUTHORIZED);
     }
-
     req.session.user = result.user;
     req.session.userType = "recruiter";
-
     return this.success(
       res,
       {
@@ -75,17 +64,48 @@ export class AuthController extends BaseController {
   // Registro recrutador
   static recruiterRegister = BaseController.asyncHandler(async (req, res) => {
     const userData = req.body;
-
     const result = await authService.registerRecruiter(userData);
-
     if (!result.success) {
       return this.error(res, result.message, StatusCodes.BAD_REQUEST);
     }
-
     return this.success(
       res,
       result.user,
       "Recruiter registration successful",
+      StatusCodes.CREATED
+    );
+  });
+
+  // Login empresa
+  static companyLogin = BaseController.asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    const result = await authService.loginCompany(email, password);
+    if (!result.success) {
+      return this.error(res, result.message, StatusCodes.UNAUTHORIZED);
+    }
+    req.session.user = result.user;
+    req.session.userType = "company";
+    return this.success(
+      res,
+      {
+        user: result.user,
+        token: result.token,
+      },
+      "Company login successful"
+    );
+  });
+
+  // Registro empresa
+  static companyRegister = BaseController.asyncHandler(async (req, res) => {
+    const companyData = req.body;
+    const result = await authService.registerCompany(companyData);
+    if (!result.success) {
+      return this.error(res, result.message, StatusCodes.BAD_REQUEST);
+    }
+    return this.success(
+      res,
+      result.user,
+      "Company registration successful",
       StatusCodes.CREATED
     );
   });
@@ -95,7 +115,6 @@ export class AuthController extends BaseController {
     const candidateData = await authService.getCandidateDashboardData(
       req.user.id
     );
-
     return this.success(res, candidateData, "Candidate dashboard");
   });
 
@@ -104,8 +123,15 @@ export class AuthController extends BaseController {
     const recruiterData = await authService.getRecruiterDashboardData(
       req.user.id
     );
-
     return this.success(res, recruiterData, "Recruiter dashboard");
+  });
+
+  // Dashboard empresa
+  static companyDashboard = BaseController.asyncHandler(async (req, res) => {
+    const companyData = await authService.getCompanyDashboardData(
+      req.user.company_id
+    );
+    return this.success(res, companyData, "Company dashboard");
   });
 
   // Logout

@@ -1,50 +1,162 @@
-// import * as companyService from "../services/company.service.js";
-// import { StatusCodes } from "http-status-codes";
+import { BaseController } from "./base.controller.js";
+import * as authService from "../services/auth.service.js";
+import { StatusCodes } from "http-status-codes";
 
-// export const createCompany = async (req, res) => {
-//   try {
-//     const company = await companyService.createCompany(req.body);
-//     res.status(StatusCodes.CREATED).json(company);
-//   } catch (err) {
-//     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-//   }
-// };
+export class AuthController extends BaseController {
+  // Apenas para testes / status
+  static mainAuth(req, res) {
+    return res.status(200).json({ message: "Auth API is working." });
+  }
 
-// export const getAllCompanies = async (req, res) => {
-//   try {
-//     const companies = await companyService.getAllCompanies();
-//     res.json(companies);
-//   } catch (err) {
-//     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-//   }
-// };
+  // Login candidato
+  static candidateLogin = BaseController.asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    const result = await authService.loginCandidate(email, password);
+    if (!result.success) {
+      return AuthController.error(
+        res,
+        result.message,
+        StatusCodes.UNAUTHORIZED
+      );
+    }
+    req.session.user = result.user;
+    req.session.userType = "candidate";
+    return AuthController.success(
+      res,
+      {
+        user: result.user,
+        token: result.token,
+      },
+      "Login successful"
+    );
+  });
 
-// export const getCompanyById = async (req, res) => {
-//   try {
-//     const company = await companyService.getCompanyById(req.params.id);
-//     if (!company) return res.status(StatusCodes.NOT_FOUND).json({ error: "Company not found" });
-//     res.json(company);
-//   } catch (err) {
-//     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-//   }
-// };
+  // Registro candidato
+  static candidateRegister = BaseController.asyncHandler(async (req, res) => {
+    const userData = req.body;
+    const result = await authService.registerCandidate(userData);
+    if (!result.success) {
+      return AuthController.error(res, result.message, StatusCodes.BAD_REQUEST);
+    }
+    return AuthController.success(
+      res,
+      result.user,
+      "Registration successful",
+      StatusCodes.CREATED
+    );
+  });
 
-// export const updateCompany = async (req, res) => {
-//   try {
-//     const company = await companyService.updateCompany(req.params.id, req.body);
-//     if (!company) return res.status(StatusCodes.NOT_FOUND).json({ error: "Company not found" });
-//     res.json(company);
-//   } catch (err) {
-//     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-//   }
-// };
+  // Login recrutador
+  static recruiterLogin = BaseController.asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    const result = await authService.loginRecruiter(email, password);
+    if (!result.success) {
+      return AuthController.error(
+        res,
+        result.message,
+        StatusCodes.UNAUTHORIZED
+      );
+    }
+    req.session.user = result.user;
+    req.session.userType = "recruiter";
+    return AuthController.success(
+      res,
+      {
+        user: result.user,
+        token: result.token,
+      },
+      "Login successful"
+    );
+  });
 
-// export const deleteCompany = async (req, res) => {
-//   try {
-//     const deleted = await companyService.deleteCompany(req.params.id);
-//     if (!deleted) return res.status(StatusCodes.NOT_FOUND).json({ error: "Company not found" });
-//     res.status(StatusCodes.NO_CONTENT).send();
-//   } catch (err) {
-//     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-//   }
-// };
+  // Registro recrutador
+  static recruiterRegister = BaseController.asyncHandler(async (req, res) => {
+    const userData = req.body;
+    const result = await authService.registerRecruiter(userData);
+    if (!result.success) {
+      return AuthController.error(res, result.message, StatusCodes.BAD_REQUEST);
+    }
+    return AuthController.success(
+      res,
+      result.user,
+      "Recruiter registration successful",
+      StatusCodes.CREATED
+    );
+  });
+
+  // Login empresa
+  static companyLogin = BaseController.asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    const result = await authService.loginCompany(email, password);
+    if (!result.success) {
+      return AuthController.error(
+        res,
+        result.message,
+        StatusCodes.UNAUTHORIZED
+      );
+    }
+    req.session.user = result.user;
+    req.session.userType = "company";
+    return AuthController.success(
+      res,
+      {
+        user: result.user,
+        token: result.token,
+      },
+      "Company login successful"
+    );
+  });
+
+  // Registro empresa
+  static companyRegister = BaseController.asyncHandler(async (req, res) => {
+    const companyData = req.body;
+    const result = await authService.registerCompany(companyData);
+    if (!result.success) {
+      return AuthController.error(res, result.message, StatusCodes.BAD_REQUEST);
+    }
+    return AuthController.success(
+      res,
+      result.user,
+      "Company registration successful",
+      StatusCodes.CREATED
+    );
+  });
+
+  // Dashboard candidato
+  static candidateDashboard = BaseController.asyncHandler(async (req, res) => {
+    const candidateData = await authService.getCandidateDashboardData(
+      req.user.id
+    );
+    return AuthController.success(res, candidateData, "Candidate dashboard");
+  });
+
+  // Dashboard recrutador
+  static recruiterDashboard = BaseController.asyncHandler(async (req, res) => {
+    const recruiterData = await authService.getRecruiterDashboardData(
+      req.user.id
+    );
+    return AuthController.success(res, recruiterData, "Recruiter dashboard");
+  });
+
+  // Dashboard empresa
+  static companyDashboard = BaseController.asyncHandler(async (req, res) => {
+    const companyData = await authService.getCompanyDashboardData(
+      req.user.company_id
+    );
+    return AuthController.success(res, companyData, "Company dashboard");
+  });
+
+  // Logout
+  static logout(req, res) {
+    req.session.destroy((err) => {
+      if (err) {
+        return AuthController.error(
+          res,
+          "Logout failed",
+          StatusCodes.INTERNAL_SERVER_ERROR
+        );
+      }
+      return res.status(StatusCodes.OK).json({ message: "Logout successful" });
+    });
+  }
+}

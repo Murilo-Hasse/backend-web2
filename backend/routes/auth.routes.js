@@ -16,9 +16,9 @@ const router = express.Router();
 router.get("/", AuthController.mainAuth);
 
 // Candidate auth routes
-router.get("/candidate/login", AuthController.candidateLoginForm);
+//router.get("/candidate/login", AuthController.candidateLoginForm);
 router.post("/candidate/login", AuthController.candidateLogin);
-router.get("/candidate/register", AuthController.candidateRegisterForm);
+//router.get("/candidate/register", AuthController.candidateRegisterForm);
 router.post(
   "/candidate/register",
   validateCandidateCreation,
@@ -26,14 +26,23 @@ router.post(
 );
 
 // Recruiter auth routes
-router.get("/recruiter/login", AuthController.recruiterLoginForm);
+//router.get("/recruiter/login", AuthController.recruiterLoginForm);
 router.post("/recruiter/login", AuthController.recruiterLogin);
-router.get("/recruiter/register", AuthController.recruiterRegisterForm);
+//router.get("/recruiter/register", AuthController.recruiterRegisterForm);
 router.post(
   "/recruiter/register",
   validateRecruiterCreation,
   AuthController.recruiterRegister
 );
+router.post(
+  "/company/register",
+  AuthController.companyRegister
+);
+router.post(
+  "/company/login",
+  AuthController.companyLogin
+),
+
 
 // Protected routes
 router.get(

@@ -68,6 +68,9 @@ export const validateCompanyCreation = [
     .isLength({ min: 10, max: 15 })
     .withMessage("Telefone deve ter entre 10 e 15 caracteres"),
   body("email").isEmail().normalizeEmail().withMessage("Email deve ser válido"),
+  body("password")
+    .isLength({ min: 6 })
+    .withMessage("Senha deve ter pelo menos 6 caracteres"),
   body("address")
     .trim()
     .isLength({ min: 5, max: 200 })
